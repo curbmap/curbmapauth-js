@@ -1,0 +1,37 @@
+doctype html
+html
+    head
+        link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous")
+        script(src="https://code.jquery.com/jquery-3.1.1.min.js")
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous")
+        script(src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous")
+        script(src="/javascripts/activate.js")
+    body
+        nav(class=["navbar", "navbar-toggleable-md", "navbar-light", "bg-faded"] )
+            button(class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation")
+                span(class="navbar-toggler-icon")
+            a(class="navbar-brand" href="http://curbmap.com")
+                img(src="/img/curbmap.png" width="100")
+            .collapse.navbar-collapse(id="navbarSupportedContent")
+                ul(class="navbar-nav mr-auto")
+                    li(class="nav-item active")
+                        a(href="http://curbmap.com/activate") Activate
+        p
+        .container
+            .card
+                .card-header
+                    h6 Enter the token you should have received by e-mail. If you did not receive a token, enter the username you used to sign up at curbmap.com and click, "resend". We want to make sure your account is as secure as possible.
+                .card-block
+                    .alert.alert-danger(id="alerterror")
+                        if errortext != ""
+                            h3=errortext
+                    form(action="/activate", method="GET" class="form" id="activateform")
+                        .form-group.row(style="padding: 0px 50px 0px 50px;")
+                            label(for='username' class="col-form-label") username:
+                            input(type="text", class='form-control', name='username', id='username', value='')
+                        .form-group.row(style="padding: 0px 50px 0px 50px;")
+                            label(for='token' class="col-form-label") token:
+                            input(type="text", class='form-control mr-sm-2', name='token', id='token', value='')
+                        .form-group.row(style="padding: 0px 50px 0px 50px;")
+                            input(type="submit", class="btn btn-success" value="activate")
+                            input(type="button", class="btn btn-info" value="resend" id="resend")
