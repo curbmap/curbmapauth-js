@@ -14,4 +14,4 @@ deployment:
       - cd ~/curbmapauth-js && tar -c -v --exclude node_modules -f curbmapauth-js.tar *
       - cd ~/curbmapauth-js && bzip2 curbmapauth-js.tar
       - scp -r ~/curbmapauth-js/curbmapauth-js.tar.bz2 ec2-user@curbmap.com:~/tommydeploy/curbmapauth-js/
-      - ssh ec2-user@curbmap.com "cd ~/tommydeploy && ./runscript.sh run > /dev/null &"
+      - ssh ec2-user@curbmap.com "cd ~/tommydeploy && ./runscript.sh build > /dev/null &"

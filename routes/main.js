@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 12;
 const uuidv1 = require('uuid/v1');
 
-const passwordSpecial = /[!@#$%^&*)(<>+=._\-]+/g;
+const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
 const passwordCapital = /[A-Z]+/g;
 const passwordLower = /[a-z]+/g;
 const passwordNum = /[0-9]+/g;
