@@ -1,6 +1,6 @@
 "use strict";
 const passport = require('passport');
-require('dotenv').config({path: '../../curbmap.env'});
+require('dotenv').config({path: '../curbmap.env'});
 const postgres = require('../model/postgresModels');
 const util = require('util');
 const bcrypt = require('bcrypt');
