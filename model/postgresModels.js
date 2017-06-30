@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-require('dotenv').config({path: '../../curbmap.env'});
+require('dotenv').config({path: '../curbmap.env'});
 const sequelize = new Sequelize('postgres://'+
     process.env.USERDB_USERNAME + ':' +
     process.env.USERDB_PASSWORD + '@' + process.env.POSTGRES_HOST +'/' + process.env.POSTGRES_DB);

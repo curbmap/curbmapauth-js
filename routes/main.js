@@ -1,10 +1,9 @@
 "use strict";
-var express = require('express');
-var passport = require('passport');
-var postgres = require('../model/postgresModels');
-var util = require('util');
-var bcrypt = require('bcrypt');
+const passport = require('passport');
 require('dotenv').config({path: '../../curbmap.env'});
+const postgres = require('../model/postgresModels');
+const util = require('util');
+const bcrypt = require('bcrypt');
 const saltRounds = 12;
 const uuidv1 = require('uuid/v1');
 
