@@ -9,8 +9,6 @@ jobs:
         - master
     steps:
       - checkout
-      - restore_cache
-        key: v1-curbmapauth
       run: cd ~/curbmapauth-js && npm install
       - save_cache
         key: v1-curbmapauth
