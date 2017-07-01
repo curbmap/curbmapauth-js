@@ -5,6 +5,7 @@ const postgres = require('../model/postgresModels');
 const bcrypt = require('bcrypt');
 const saltRounds = 12;
 const uuidv1 = require('uuid/v1');
+const winston = require('winston');
 
 const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
   const passwordCapital = /[A-Z]+/g;
@@ -35,7 +36,7 @@ const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
             res.json({success: 0});
             next();
           }
-        }).catch((e) => {
+        }).catch(() => {
           res.json({success: 0});
           next();
         })
@@ -63,13 +64,13 @@ const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
         })
         .catch((e) => {
           if (e === "autherror") {
-            console.log("error");
+            winston.log('main:activate', 'wrong token', req.query.username);
             res.render('activate', {errortext: "Please make sure you copied the token correctly"});
           } else if (e === "nouser") {
-            console.log("error no user");
+            winston.log('main:activate', req.query.username);
             res.render('activate', {errortext: "Please check the username again"});
           }
-          console.log(e);
+          winston.log('main:activate', 'no user', req.query.username);
         })
       } else {
         res.render('activate', {errortext: ""});
@@ -203,7 +204,7 @@ const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
         if (error) {
           return error;
         }
-        console.log('Message %s sent: %s', info.messageId, info.response);
+        winston.log('main:sendAuth', 'sending mail to: '+email, {messageId: info.messageId, response: info.response});
       });
     }
 

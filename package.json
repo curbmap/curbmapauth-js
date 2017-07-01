@@ -43,6 +43,7 @@
     "redis": "^2.7.1",
     "sequelize": "^3.30.4",
     "serve-favicon": "^2.4.3",
-    "uuid": "^3.1.0"
+    "uuid": "^3.1.0",
+    "winston": "^2.3.1"
   }
 }
