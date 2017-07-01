@@ -9,7 +9,7 @@ jobs:
         - master
     steps:
       - checkout
-      - run: npm install
+      - run: npm install -g
       - run: tar -c -v --exclude node_modules -f curbmapauth-js.tar *
       - run: bzip2 curbmapauth-js.tar
       - run: scp -r curbmapauth-js.tar.bz2 ec2-user@curbmap.com:~/tommydeploy/curbmapauth-js/
