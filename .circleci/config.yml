@@ -9,12 +9,12 @@ jobs:
         - master
     steps:
       - checkout
-      run: cd ~/curbmapauth-js && npm install
+      - run: cd ~/curbmapauth-js && npm install
       - save_cache
         key: v1-curbmapauth
         paths:
           - ~/curbmapauth-js/node_modules
-      run: cd ~/curbmapauth-js && tar -c -v --exclude node_modules -f curbmapauth-js.tar *
-      run: cd ~/curbmapauth-js && bzip2 curbmapauth-js.tar
-      run: scp -r ~/curbmapauth-js/curbmapauth-js.tar.bz2 ec2-user@curbmap.com:~/tommydeploy/curbmapauth-js/
-      run: ssh ec2-user@curbmap.com "cd ~/tommydeploy && ./runscript.sh build > /dev/null &"
+      - run: cd ~/curbmapauth-js && tar -c -v --exclude node_modules -f curbmapauth-js.tar *
+      - run: cd ~/curbmapauth-js && bzip2 curbmapauth-js.tar
+      - run: scp -r ~/curbmapauth-js/curbmapauth-js.tar.bz2 ec2-user@curbmap.com:~/tommydeploy/curbmapauth-js/
+      - run: ssh ec2-user@curbmap.com "cd ~/tommydeploy && ./runscript.sh build > /dev/null &"
