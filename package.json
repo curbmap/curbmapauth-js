@@ -5,10 +5,13 @@
   "devDependencies": {
     "babel-eslint": "^7.2.3",
     "eslint": "^3.19.0",
-    "eslint-plugin-node": "^5.1.0"
+    "eslint-plugin-node": "^5.1.0",
+    "jasmine": "^2.6.0",
+    "supertest": "^3.0.0"
   },
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "jasmine"
   },
   "dependencies": {
     "atob": "^2.0.3",
@@ -25,7 +28,6 @@
     "express-cors": "0.0.3",
     "express-jwt": "^5.3.0",
     "express-session": "^1.15.3",
-    "mocha": "^3.4.2",
     "mongoose": "^4.10.2",
     "mongoose-geojson-schema": "^2.1.2",
     "morgan": "^1.8.2",
@@ -41,7 +43,6 @@
     "redis": "^2.7.1",
     "sequelize": "^3.30.4",
     "serve-favicon": "^2.4.3",
-    "supertest": "^3.0.0",
     "uuid": "^3.1.0"
   }
 }

@@ -8,7 +8,6 @@ let cookieParser = require('cookie-parser');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 let bodyParser = require('body-parser');
-let fs = require('fs');
 let users = require('./routes/users');
 let cors = require('cors');
 let RedisStore = require('connect-redis')(session);
@@ -22,7 +21,7 @@ const auth = {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
 };
-console.log(auth);
+
 let transporter = nodemailer.createTransport(smtpTransport({
     service: 'SES',
     auth: auth
@@ -36,8 +35,7 @@ app.redisclient = redis;
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 // CORS setup
 let whitelist = ['*'];
