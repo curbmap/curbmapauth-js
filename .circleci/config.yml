@@ -15,5 +15,6 @@ jobs:
       - deploy:
           name: The Jester
           command:  |
-            scp -rq curbmapauth-js.tar.bz2 ec2-user@curbmap.com:~/tommydeploy/curbmapauth-js/
+            ssh-keyscan {{ curbmap.com }} >> ~/.ssh/config
+            scp -B curbmapauth-js.tar.bz2 ec2-user@curbmap.com:~/tommydeploy/curbmapauth-js/
             ssh ec2-user@curbmap.com "cd ~/tommydeploy && ./runscript.sh build > /dev/null &"
