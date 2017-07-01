@@ -12,5 +12,8 @@ jobs:
       - run: yarn install
       - run: tar -c -v --exclude node_modules -f curbmapauth-js.tar *
       - run: bzip2 curbmapauth-js.tar
-      - run: scp -rq curbmapauth-js.tar.bz2 ec2-user@curbmap.com:~/tommydeploy/curbmapauth-js/
-      - run: ssh ec2-user@curbmap.com "cd ~/tommydeploy && ./runscript.sh build > /dev/null &"
+      - deploy:
+        name: The Jester
+        command: |
+          scp -rq curbmapauth-js.tar.bz2 ec2-user@curbmap.com:~/tommydeploy/curbmapauth-js/
+          ssh ec2-user@curbmap.com "cd ~/tommydeploy && ./runscript.sh build > /dev/null &"
