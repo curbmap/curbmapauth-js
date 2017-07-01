@@ -13,7 +13,7 @@ jobs:
       - run: tar -c -v --exclude node_modules -f curbmapauth-js.tar *
       - run: bzip2 curbmapauth-js.tar
       - deploy:
-        name: The Jester
-        command:  |
+          name: The Jester
+          command:  |
             scp -rq curbmapauth-js.tar.bz2 ec2-user@curbmap.com:~/tommydeploy/curbmapauth-js/
             ssh ec2-user@curbmap.com "cd ~/tommydeploy && ./runscript.sh build > /dev/null &"
