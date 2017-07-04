@@ -118,7 +118,7 @@ const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
           })
           .then(function(newUser) {
             sendAuth(transporter, req.body.username, req.body.email, newUser.auth_token);
-            res.json({success: 1});
+            res.status(200).send({success: 1});
           })
           .catch((error) => {
             let value;
@@ -139,11 +139,11 @@ const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
                 value = -5
               break;
             }
-            res.json({success: value})
+            res.status(200).send({success: value})
           })
         } else {
           // no info
-          res.json({success: 0})
+          res.status(200).send({success: 0})
         }
         next();
       })
