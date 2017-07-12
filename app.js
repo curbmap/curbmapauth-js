@@ -8,7 +8,6 @@ let cookieParser = require('cookie-parser');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 let bodyParser = require('body-parser');
-let users = require('./routes/users');
 let cors = require('cors');
 let RedisStore = require('connect-redis')(session);
 let redis = require('redis').createClient(50005, '127.0.0.1');
@@ -115,8 +114,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 require('./routes/index').userResources(app, transporter);
-
-app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
