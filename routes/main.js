@@ -179,7 +179,7 @@ const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
         return({
           username: user.username,
           role: user.role,
-          badge: user.badge,
+          badge: user.badge + "",
           badge_updatedAt: user.badge_updatedAt,
           score: user.score,
           score_updatedAt: user.score_updatedAt,

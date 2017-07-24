@@ -24,7 +24,7 @@ const User = sequelize.define('standard_user', {
     updatedAt: { type: Sequelize.DATE, defaultValue: new Date()  },
     score: { type: Sequelize.INTEGER, defaultValue: 0 },
     score_updatedAt: { type: Sequelize.DATE, defaultValue: new Date()  },
-    badge: { type: Sequelize.STRING, defaultValue: 'beginner'},
+    badge: { type: Sequelize.INTEGER, defaultValue: 1 },
     badge_updatedAt: { type: Sequelize.DATE, defaultValue: new Date() }
 }, {freezeTableName: true});
 
