@@ -20,10 +20,10 @@ const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
       res.json(userContent(req.user, req.sessionID));
     });
 
-    app.get('/logout', passport.authMiddleware, function (req, res) {
+    app.get('/logout', passport.authMiddleware(), function (req, res) {
       winston.log('info', req.session)
       winston.log('info', req.headers)
-      res.send(200).json({})
+      res.status(200).json({})
     })
     
     app.get('/resendauth', (req, res, next) => {
