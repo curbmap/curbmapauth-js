@@ -21,10 +21,13 @@ const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
     });
 
     app.get('/logout', passport.authMiddleware(), function (req, res) {
-      winston.log('info', req.session)
-      winston.log('info', req.headers)
-      res.status(200).json({})
-    })
+      let user = req.session.user
+      req.logout();
+      if (req.user === user) {
+        res.status(200).json({"success": false});
+      }
+      res.status(200).json({"success": true});
+    });
     
     app.get('/resendauth', (req, res, next) => {
       if (req.query.hasOwnProperty('username') && req.query.username !== "") {
