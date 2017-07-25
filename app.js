@@ -17,13 +17,13 @@ require('dotenv').config({path: '../curbmap.env'});
 const nodemailer = require('nodemailer');
 let smtpTransport = require('nodemailer-smtp-transport');
 const auth = {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+  user: process.env.EMAIL_USER,
+  pass: process.env.EMAIL_PASS
 };
 
 let transporter = nodemailer.createTransport(smtpTransport({
-    service: 'SES',
-    auth: auth
+  service: 'SES',
+  auth: auth
 }));
 redis.auth(process.env.REDIS_PASSWORD);
 
@@ -39,76 +39,77 @@ app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 // CORS setup
 let whitelist = ['*'];
 let corsOptions = {
-    origin: function (origin, callback) {
-        if (whitelist.indexOf('*') !== -1 || whitelist.indexOf(origin) !== -1) {
-            callback(null, true)
-        } else {
-            callback(new Error('Not allowed by CORS'))
-        }
+  origin: function (origin, callback) {
+    if (whitelist.indexOf('*') !== -1 || whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
     }
+  }
 };
 app.options('*', cors(corsOptions)); // include before other routes
 app.use(cors(corsOptions));
 app.use(logger('dev'));
 app.use(cookieParser());
 app.use(session({
-    store: new RedisStore({
-        host: '127.0.0.1',
-        port: 50005,
-        prefix: 'curbmap:sessions:',
-        client: redis
-    }),
-    resave: false,
-    saveUninitialized: false,
-    secret: process.env.REDIS_SECRET
+  store: new RedisStore({
+    host: '127.0.0.1',
+    port: 50005,
+    prefix: 'curbmap:sessions:',
+    client: redis,
+    ttl: 13000
+  }),
+  resave: false,
+  saveUninitialized: false,
+  secret: process.env.REDIS_SECRET
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
 passport.serializeUser(function (user, cb) {
-    cb(null, user.username)
+  cb(null, user.username)
 });
 
 passport.deserializeUser(function (username, cb) {
-    findUser(username, cb)
+  findUser(username, cb)
 });
 
 function findUser(username, cb) {
-    postgres.User.findOne({where: {username: username}}).then(
-        function (foundUser) {
-          console.log(username);
-            if (foundUser !== null) {
-                return cb(null, foundUser);
-            } else {
-                return cb(null, false)
-            }
-        }
-    );
+  postgres.User.findOne({where: {username: username}}).then(
+    function (foundUser) {
+      console.log(username);
+      if (foundUser !== null) {
+        return cb(null, foundUser);
+      } else {
+        return cb(null, false)
+      }
+    }
+  );
 }
 
 passport.authMiddleware = require('./auth/authMiddleware');
 
 // We will add other Strategies, such as FB strategy
 passport.use(new LocalStrategy(
-   function (username, password, done) {
-     console.log(username + "---" + password)
-       findUser(username, function (nullvalue, userObject) {
-           if (userObject !== false) {
-               bcrypt.compare(password, userObject.password_hash, function (err, res) {
-                   if (err) {
-                       return done(err)
-                   }
-                   else if (res === true) {
-                       return done(null, userObject)
-                   } else {
-                       return done(null, false)
-                   }
-               })
-           } else {
-               return done(null, false)
-           }
-       })
-   }
+  function (username, password, done) {
+    console.log(username + "---" + password)
+    findUser(username, function (nullvalue, userObject) {
+      if (userObject !== false) {
+        bcrypt.compare(password, userObject.password_hash, function (err, res) {
+          if (err) {
+            return done(err)
+          }
+          else if (res === true) {
+            return done(null, userObject)
+          } else {
+            return done(null, false)
+          }
+        })
+      } else {
+        return done(null, false)
+      }
+    })
+  }
 ));
 
 app.use(bodyParser.json());
@@ -119,19 +120,19 @@ require('./routes/index').userResources(app, transporter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-    let err = new Error('Not Found');
-    err.status = 404;
-    next(err);
+  let err = new Error('Not Found');
+  err.status = 404;
+  next(err);
 });
 
 // error handler
 app.use(function(err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-    // render the error page
-    res.status(err.status || 500);
+  // render the error page
+  res.status(err.status || 500);
 });
 
 module.exports = app;

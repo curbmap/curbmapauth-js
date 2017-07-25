@@ -13,12 +13,19 @@ const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
   const passwordNum = /[0-9]+/g;
   const regexpEmail = /^[_A-Za-z0-9-+]+(.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(.[A-Za-z0-9]+)*(.[A-Za-z]{2,})$/;
   function userResources(app, transporter) {
+  
     app.post('/login', passport.authenticate('local'), function(req, res) {
       req.session.role = req.user.role;
       req.session.userid = req.user.id_user;
       res.json(userContent(req.user, req.sessionID));
     });
 
+    app.get('/logout', passport.authMiddleware, function (req, res) {
+      winston.log('info', req.session)
+      winston.log('info', req.headers)
+      res.send(200).json({})
+    })
+    
     app.get('/resendauth', (req, res, next) => {
       if (req.query.hasOwnProperty('username') && req.query.username !== "") {
         postgres.User.findOne({where: {username: req.query.username}})
