@@ -90,7 +90,8 @@ const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
 
     app.post('/resetpassword', passport.authMiddleware(), (req, res) => {
       let user = req.session.user
-      winston.log('info', reset, {user: user})
+      winston.log('info', "reset", {user: user})
+      res.status(200).send({})
     })
 
     app.post('/signup', function (req, res, next) {

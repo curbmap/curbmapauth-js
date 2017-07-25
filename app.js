@@ -92,7 +92,6 @@ passport.authMiddleware = require('./auth/authMiddleware');
 // We will add other Strategies, such as FB strategy
 passport.use(new LocalStrategy(
   function (username, password, done) {
-    console.log(username + "---" + password)
     findUser(username, function (nullvalue, userObject) {
       if (userObject !== false) {
         bcrypt.compare(password, userObject.password_hash, function (err, res) {
