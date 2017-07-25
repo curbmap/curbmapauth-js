@@ -90,32 +90,35 @@ const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
 
     app.post('/changepassword', passport.authMiddleware(), (req, res) => {
       if (req.body.username === undefined || req.body.password === undefined || req.body.newpassword === undefined) {
+        winston.log('info', 'changepass'. req.body.username);
         res.status(200).json({success: 0});
       } else {
         let user = req.session.passport.user; // username
         if (req.body.username !== user) {
+          winston.log('info', 'changepass'. req.body.username);
           res.status(200).json({success: -1});
         } else {
           // user is correct user
           // check passwords
           bcrypt.compare(req.body.password, req.user.password_hash, (err, result) => {
             if (err) {
+              winston.log('info', 'changepass', {user: req.body.username, err: err});
               res.status(200).json({success: -2});
             } else {
               if (result) {
                 // check password meets criteria
                 if (passwordMeetsCriteria(req.body.newpassword)) {
-                  changePassword(userObject, req.body.newpassword, res);
+                  changePassword(req.user, req.body.newpassword, res);
                 } else {
+                  winston.log('info', 'changepass'. req.body.newpassword)
                   res.status(200).json({success: -3});
                 }
               } else {
+                winston.log('info', 'changepass'. req.body.newpassword)
                 res.status(200).json({success: -2});
               }
             }
           })
-          let userObject = req.user // object from postgresModels
-          res.status(200).send({})
         }
       }
     })
