@@ -88,10 +88,36 @@ const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
       }
     });
 
-    app.post('/resetpassword', passport.authMiddleware(), (req, res) => {
-      let user = req.session.user
-      winston.log('info', "reset", {user: user})
-      res.status(200).send({})
+    app.post('/changepassword', passport.authMiddleware(), (req, res) => {
+      if (req.body.username === undefined || req.body.password === undefined || req.body.newpassword === undefined) {
+        res.status(200).json({success: 0});
+      } else {
+        let user = req.session.passport.user; // username
+        if (req.body.username !== user) {
+          res.status(200).json({success: -1});
+        } else {
+          // user is correct user
+          // check passwords
+          bcrypt.compare(req.body.password, req.user.password_hash, (err, result) => {
+            if (err) {
+              res.status(200).json({success: -2});
+            } else {
+              if (result) {
+                // check password meets criteria
+                if (passwordMeetsCriteria(req.body.newpassword)) {
+                  changePassword(userObject, req.body.newpassword, res);
+                } else {
+                  res.status(200).json({success: -3});
+                }
+              } else {
+                res.status(200).json({success: -2});
+              }
+            }
+          })
+          let userObject = req.user // object from postgresModels
+          res.status(200).send({})
+        }
+      }
     })
 
     app.post('/signup', function (req, res, next) {
@@ -234,6 +260,16 @@ const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
         password.match(passwordLower) &&
         password.match(passwordNum)
       );
+    }
+
+    function changePassword(userObject, password, res) {
+      userObject.password_hash = bcrypt.hashSync(password, saltRounds)
+      userObject.save().then((userNewObject) => {
+        res.status(200).json({success: 1});
+      }).catch((err) => {
+        winston.log('warn', 'error in saving: ', userObject.username)
+        res.status(200).json({success: -3});
+      })
     }
 
     module.exports = userResources;
