@@ -110,7 +110,7 @@ const passwordSpecial = /[!@#$%^&*)(<>+=._-]+/g;
                 if (passwordMeetsCriteria(req.body.newpassword)) {
                   changePassword(req.user, req.body.newpassword, res);
                 } else {
-                  winston.log('info', 'changepass'. req.body.newpassword)
+                  winston.log('info', 'changepass', req.body.newpassword)
                   res.status(200).json({success: -3});
                 }
               } else {
