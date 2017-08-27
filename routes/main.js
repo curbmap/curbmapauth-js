@@ -21,7 +21,7 @@ function userResources(app, transporter) {
   });
 
   app.post('/logout', passport.authMiddleware(), function (req, res) {
-    let user = req.session.user;
+    let user = req.session.passport.user;
     req.logout();
     if (req.user !== user) {
       res.status(200).json({"success": false});
