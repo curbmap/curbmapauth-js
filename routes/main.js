@@ -23,10 +23,11 @@ function userResources(app, transporter) {
   app.post('/logout', passport.authMiddleware(), function (req, res) {
     let user = req.session.passport.user;
     req.logout();
-    if (req.user !== user) {
+    if (req.user.username !== user) {
       res.status(200).json({"success": false});
+    } else {
+      res.status(200).json({"success": true});
     }
-    res.status(200).json({"success": true});
   });
 
   app.get('/resendauth', (req, res, next) => {
