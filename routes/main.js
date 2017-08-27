@@ -20,10 +20,10 @@ function userResources(app, transporter) {
     res.json(userContent(req.user, req.sessionID));
   });
 
-  app.get('/logout', passport.authMiddleware(), function (req, res) {
-    let user = req.session.user
+  app.post('/logout', passport.authMiddleware(), function (req, res) {
+    let user = req.session.user;
     req.logout();
-    if (req.user === user) {
+    if (req.user !== user) {
       res.status(200).json({"success": false});
     }
     res.status(200).json({"success": true});
