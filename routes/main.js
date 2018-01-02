@@ -292,6 +292,11 @@ function userResources(app, transporter) {
     next();
   });
 
+  app.get('/privacy', (req, res, next) => {
+    console.log("here")
+    res.render('privacy')
+  })
+
   app.get('/', (req, res, next) => {
     res.render('index');
     next();
