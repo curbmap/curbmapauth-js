@@ -58,21 +58,30 @@ function userResources(app, transporter) {
     })(req, res, next);
   });
 
-  app.post('/logout', passport.authMiddleware(), (req, res) => {
-    const user = req.session.passport.user;
-    winston.log('info', {user, other: req.session.passport.user})
-    if (req.user.username !== user) {
-      res
-        .status(200)
-        .json({success: false});
-    } else {
-      res
-        .status(200)
-        .json({success: true});
-      req.logout();
-    }
-  });
-
+  app.post('/logout', (req, res, next) => {
+    passport.isAuthenticated(req, res, next, (req, res, next, err) => {
+      if (err != null) {
+        return res
+          .status(401)
+          .json({success: false})
+      } else {
+        const user = req.session.passport.user;
+        if (req.user.username !== user) {
+          res
+            .status(200)
+            .json({success: false});
+        } else {
+          res
+            .status(200)
+            .json({success: true});
+          req.logout();
+          req
+            .session
+            .destroy()
+        }
+      }
+    })
+  })
   app.get('/resendauth', (req, res, next) => {
     if (req.query.hasOwnProperty('username') && req.query.username !== '') {
       postgres
@@ -145,43 +154,51 @@ function userResources(app, transporter) {
     }
   });
 
-  app.post('/changepassword', passport.authMiddleware(), (req, res) => {
-    if (req.body.username === undefined || req.body.password === undefined || req.body.newpassword === undefined || req.body.username == 'curbmaptest') {
-      res
-        .status(200)
-        .json({success: 0});
-    } else {
-      const user = req.session.passport.user; // username
-      if (req.body.username !== user) {
-        res
-          .status(200)
-          .json({success: -1});
+  app.post('/changepassword', (req, res, next) => {
+    passport.isAuthenticated(req, res, next, (req, res, next, err) => {
+      if (err != null) {
+        return res
+          .status(401)
+          .json({success: false})
       } else {
-        // user is correct user check passwords
-        bcrypt.compare(req.body.password, req.user.password_hash, (err, result) => {
-          if (err) {
-            winston.log('info', 'changepass', {
-              user: req.body.username,
-              err
-            });
-          } else if (result) {
-            // check password meets criteria
-            if (passwordMeetsCriteria(req.body.newpassword)) {
-              changePassword(req.user, req.body.newpassword, res);
-            } else {
-              res
-                .status(200)
-                .json({success: -3});
-            }
-          } else {
+        if (req.body.username === undefined || req.body.password === undefined || req.body.newpassword === undefined || req.body.username == 'curbmaptest') {
+          res
+            .status(200)
+            .json({success: 0});
+        } else {
+          const user = req.session.passport.user; // username
+          if (req.body.username !== user) {
             res
               .status(200)
-              .json({success: -2});
+              .json({success: -1});
+          } else {
+            // user is correct user check passwords
+            bcrypt.compare(req.body.password, req.user.password_hash, (err, result) => {
+              if (err) {
+                winston.log('info', 'changepass', {
+                  user: req.body.username,
+                  err
+                });
+              } else if (result) {
+                // check password meets criteria
+                if (passwordMeetsCriteria(req.body.newpassword)) {
+                  changePassword(req.user, req.body.newpassword, res);
+                } else {
+                  res
+                    .status(200)
+                    .json({success: -3});
+                }
+              } else {
+                res
+                  .status(200)
+                  .json({success: -2});
+              }
+            });
           }
-        });
+        }
       }
-    }
-  });
+    });
+  })
 
   app.post('/signup', (req, res, next) => {
     if (req.body.username !== '' && req.body.password !== '' && req.body.email !== '') {
@@ -285,10 +302,19 @@ function userResources(app, transporter) {
     next();
   });
 
-  app.get('/user', passport.authMiddleware(), (req, res, next) => {
-    res.render(userContent(req.user, req.sessionID));
-    next();
-  });
+  app.get('/user', (req, res, next) => {
+    passport.isAuthenticated(req, res, next, (req, res, next, err) => {
+      if (err != null) {
+        return res
+          .status(401)
+          .json({success: false})
+      } else {
+        return res
+          .status(200)
+          .json(userContent(req.user, req.sessionID));
+      }
+    })
+  })
 
   app.get('/token', (req, res, next) => {
     res.json({});
