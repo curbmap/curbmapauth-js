@@ -15,6 +15,7 @@ const postgres = require('./model/postgresModels');
 require('dotenv').config({path: '../curbmap.env'});
 const nodemailer = require('nodemailer');
 const smtpTransport = require('nodemailer-smtp-transport');
+passport.isAuthenticated = require('./auth/isAuthenticated.js')
 
 const auth = {
   user: process.env.EMAIL_USER,
@@ -25,6 +26,7 @@ const transporter = nodemailer.createTransport(smtpTransport({service: 'SES', au
 redis.auth(process.env.REDIS_PASSWORD);
 
 const app = express();
+
 app.redisclient = redis;
 
 // view engine setup
@@ -48,6 +50,8 @@ app.options('*', cors(corsOptions)); // include before other routes
 app.use(cors(corsOptions));
 app.use(logger('dev'));
 app.use(cookieParser());
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 app.use(session({
   store: new RedisStore({host: '127.0.0.1', port: 50005, prefix: 'curbmap:sessions:', client: redis, ttl: 13000}),
   resave: false,
@@ -62,7 +66,7 @@ passport.serializeUser((user, cb) => {
 });
 
 passport.deserializeUser((username, cb) => {
-  findUser(username, cb);
+  deserializeUser(username, cb);
 });
 
 class SuccessUsernameError {
@@ -114,6 +118,21 @@ class FailedLoginError {
     this.success = 0;
   }
 }
+function deserializeUser(username, cb) {
+  // always going to look with username and must exist from session
+  postgres
+    .User
+    .findOne({where: {
+      username
+    }})
+    .then((foundUser) => {
+      if (foundUser != null) {
+        return cb(null, foundUser)
+      } else {
+        return cb(null, false)
+      }
+    })
+}
 
 function findUser(username, cb) {
   postgres
@@ -154,9 +173,8 @@ function findUser(username, cb) {
     })
 }
 
-passport.authMiddleware = require('./auth/authMiddleware');
-
-// We will add other Strategies, such as FB strategy
+// passport.isAuthenticated = require('./auth/isAuthenticated.js'); We will add
+// other Strategies, such as FB strategy
 passport.use(new LocalStrategy(((username, password, done) => {
   findUser(username, (code, userObject) => {
     if (userObject !== false) {
@@ -174,10 +192,7 @@ passport.use(new LocalStrategy(((username, password, done) => {
   });
 })));
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
-
 require('./routes/index').userResources(app, transporter);
 
 // catch 404 and forward to error handler
