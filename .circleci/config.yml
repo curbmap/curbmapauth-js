@@ -15,5 +15,5 @@ jobs:
       - deploy:
           name: The Jester
           command:  |
-            scp -o StrictHostKeyChecking=no curbmapauth-js.tar.bz2 ec2-user@curbmap.com:~/tommydeploy/curbmapauth-js/
-            ssh -o StrictHostKeyChecking=no ec2-user@curbmap.com "cd ~/tommydeploy && ./runscript.sh build > /dev/null &"
+            scp -o StrictHostKeyChecking=no curbmapauth-js.tar.bz2 ec2-user@curbmap.com:~/deploy/curbmapauth-js/
+            ssh -o StrictHostKeyChecking=no ec2-user@curbmap.com "cd ~/deploy && ./runscript.sh build > /dev/null &"
