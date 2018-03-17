@@ -1,35 +1,17 @@
 const express = require("express");
-const session = require("express-session");
+require("dotenv").config({ path: "../curbmap.env" });
 const path = require("path");
 const favicon = require("serve-favicon");
 const logger = require("morgan");
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const RedisStore = require("connect-redis")(session);
-const redis = require("redis").createClient(50005, "127.0.0.1");
 const bcrypt = require("bcrypt");
 const postgres = require("./model/postgresModels");
-require("dotenv").config({ path: "../curbmap.env" });
-const nodemailer = require("nodemailer");
-const smtpTransport = require("nodemailer-smtp-transport");
-passport.isAuthenticated = require("./auth/isAuthenticated.js");
-
-const auth = {
-  user: process.env.EMAIL_USER,
-  pass: process.env.EMAIL_PASS
-};
-
-const transporter = nodemailer.createTransport(
-  smtpTransport({ service: "SES", auth })
-);
-redis.auth(process.env.REDIS_PASSWORD);
 
 const app = express();
-
-app.redisclient = redis;
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -54,22 +36,8 @@ app.use(logger("dev"));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(
-  session({
-    store: new RedisStore({
-      host: "127.0.0.1",
-      port: 50005,
-      prefix: "curbmap:sessions:",
-      client: redis,
-      ttl: 13000
-    }),
-    resave: false,
-    saveUninitialized: false,
-    secret: process.env.REDIS_SECRET
-  })
-);
+
 app.use(passport.initialize());
-app.use(passport.session());
 
 passport.serializeUser((user, cb) => {
   cb(null, user.username);
@@ -119,15 +87,6 @@ class FailedAuthorizedError {
   }
 }
 
-class FailedLoginError {
-  constructor(message, code, userObject, callback) {
-    this.code = code;
-    this.userObject = userObject;
-    this.callback = callback;
-    this.message = message;
-    this.success = 0;
-  }
-}
 function deserializeUser(username, cb) {
   // always going to look with username and must exist from session
   postgres.User.findOne({
@@ -183,8 +142,6 @@ function findUser(username, cb) {
     });
 }
 
-// passport.isAuthenticated = require('./auth/isAuthenticated.js'); We will add
-// other Strategies, such as FB strategy
 passport.use(
   new LocalStrategy((username, password, done) => {
     findUser(username, (code, userObject) => {
@@ -205,7 +162,8 @@ passport.use(
 );
 
 app.use(express.static(path.join(__dirname, "public")));
-require("./routes/index").userResources(app, transporter);
+const main = require("./routes/main")
+app.use("/", main);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
