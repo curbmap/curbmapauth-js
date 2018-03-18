@@ -70,9 +70,9 @@ router.post("/login", (req, res, next) => {
   })(req, res, next);
 });
 
-router.post("/logout", ensureLoggedIn(), (req, res, next) => {
+router.post("/logout", ensureLoggedIn(), (req, res) => {
   req.logout();
-  res.status(200).json({ success: true });
+  return res.status(200).json({ success: true });
 });
 
 router.get("/resendauth", (req, res, next) => {
@@ -292,7 +292,14 @@ router.get("/", (req, res, next) => {
   res.render("index");
   next();
 });
-
+router.get("/login", (req, res, next) => {
+  res.render("index");
+  next();
+});
+router.get("/signup", (req, res, next) => {
+  res.render("index");
+  next();
+});
 router.get("/add", (req, res, next) => {
   res.render("add");
   next();
