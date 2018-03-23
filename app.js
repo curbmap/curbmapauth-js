@@ -4,12 +4,17 @@ const path = require("path");
 const favicon = require("serve-favicon");
 const logger = require("morgan");
 const cors = require("cors");
+const fs = require("fs");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcrypt");
 const postgres = require("./model/postgresModels");
+const passportJWT = require("passport-jwt");
+const JWTStrategy = passportJWT.Strategy;
+const ExtractJWT = passportJWT.ExtractJwt;
+const EXTRACT_KEY = fs.readFileSync("../curbmap.pub");
 
 const app = express();
 
@@ -159,6 +164,19 @@ passport.use(
       }
     });
   })
+);
+
+passport.use(
+  new JWTStrategy(
+    {
+      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+      secretOrKey: EXTRACT_KEY,
+      algorithms: ["RS384"]
+    },
+    (jwtPayload, cb) => {
+      return cb(null, jwtPayload);
+    }
+  )
 );
 
 app.use(express.static(path.join(__dirname, "public")));
