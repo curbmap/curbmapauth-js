@@ -70,9 +70,9 @@ router.post("/login", (req, res, next) => {
   })(req, res, next);
 });
 
-router.post("/logout", ensureLoggedIn(), (req, res) => {
+router.post("/logout", passport.authenticate("jwt", { session: false }), (req, res) => {
   req.logout();
-  return res.status(200).json({ success: true });
+  res.status(200).json({ success: true });
 });
 
 router.get("/resendauth", (req, res, next) => {
@@ -305,8 +305,8 @@ router.get("/add", (req, res, next) => {
   next();
 });
 
-router.get("/user", ensureLoggedIn(), (req, res, next) => {
-  return res.status(200).json(userContent(req.user, req.sessionID));
+router.get("/user", passport.authenticate("jwt", { session: false }), (req, res, next) => {
+  return res.status(200).json(userContent(req.user));
 });
 
 function sendAuth(username, email, authToken) {
