@@ -65,8 +65,8 @@ const User = sequelize.define(
       defaultValue: new Date()
     },
     badge: {
-      type: Sequelize.STRING,
-      defaultValue: 0
+      type: Sequelize.ARRAY(Sequelize.BOOLEAN),
+      defaultValue: [false] // Boolean array
     },
     badge_updatedAt: {
       type: Sequelize.DATE,
