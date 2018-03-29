@@ -65,15 +65,19 @@ router.post("/login", (req, res, next) => {
         res.status(200).json(userContent(user));
       });
     } catch (error) {
-      winston.log("error", error)
+      winston.log("error", error);
     }
   })(req, res, next);
 });
 
-router.post("/logout", passport.authenticate("jwt", { session: false }), (req, res) => {
-  req.logout();
-  res.status(200).json({ success: true });
-});
+router.post(
+  "/logout",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    req.logout();
+    res.status(200).json({ success: true });
+  }
+);
 
 router.get("/resendauth", (req, res, next) => {
   if (req.query.hasOwnProperty("username") && req.query.username !== "") {
@@ -305,9 +309,13 @@ router.get("/add", (req, res, next) => {
   next();
 });
 
-router.get("/user", passport.authenticate("jwt", { session: false }), (req, res, next) => {
-  return res.status(200).json(userContent(req.user));
-});
+router.get(
+  "/user",
+  passport.authenticate("jwt", { session: false }),
+  (req, res, next) => {
+    return res.status(200).json(userContent(req.user));
+  }
+);
 
 function sendAuth(username, email, authToken) {
   var params = {
