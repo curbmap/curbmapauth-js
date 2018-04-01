@@ -1,3 +1,4 @@
+const fs = require("fs");
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
@@ -9,8 +10,6 @@ const jwt = require("jsonwebtoken");
 const saltRounds = 12;
 const uuidv1 = require("uuid/v1");
 const winston = require("winston");
-const ensureLoggedIn = require("connect-ensure-login").ensureLoggedIn;
-const fs = require("fs");
 const passwordSpecial = /[!@#$%^&*)(<>+=._]+/g;
 const passwordCapital = /[A-Z]+/g;
 const passwordLower = /[a-z]+/g;
@@ -282,7 +281,7 @@ router.post("/signup", (req, res, next) => {
   next();
 });
 
-router.get("/home", (req, res, next) => {
+router.get("/", (req, res, next) => {
   res.render("index");
   next();
 });
@@ -292,20 +291,12 @@ router.get("/privacy", (req, res, next) => {
   res.render("privacy");
 });
 
-router.get("/", (req, res, next) => {
-  res.render("index");
-  next();
-});
 router.get("/login", (req, res, next) => {
   res.render("index");
   next();
 });
 router.get("/signup", (req, res, next) => {
   res.render("index");
-  next();
-});
-router.get("/add", (req, res, next) => {
-  res.render("add");
   next();
 });
 
