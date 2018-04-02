@@ -202,6 +202,24 @@ router.post("/changepassword", (req, res, next) => {
   });
 });
 
+router.post("/submitContact", async (req, res, next) => {
+  winston.log("error", req.body)
+  if (
+    req.body.email &&
+    req.body.name &&
+    req.body.text &&
+    (req.body.email !== "" && req.body.name !== "" && req.body.text !== "")
+  ) {
+    fs.writeFileSync(
+      "./contacts/" + new Date().getTime() + ".contact.json",
+      JSON.stringify(req.body)
+    );
+    return res.status(200).json({ success: true });
+  } else {
+    return res.status(200).json({ success: false });
+  }
+});
+
 router.post("/signup", (req, res, next) => {
   if (
     req.body.username !== "" &&
