@@ -114,6 +114,7 @@ function findUser(username, cb) {
     }
   })
     .then(foundUser => {
+	console.log(foundUser)
       if (foundUser !== null && foundUser.auth_token.length == 0) {
         throw new SuccessUsernameError("success", 1, foundUser, cb);
       } else if (foundUser !== null) {
@@ -150,6 +151,7 @@ function findUser(username, cb) {
 passport.use(
   new LocalStrategy((username, password, done) => {
     findUser(username, (code, userObject) => {
+	console.log(code, userObject)
       if (userObject !== false) {
         bcrypt.compare(password, userObject.password_hash, (err, res) => {
           if (err) {
