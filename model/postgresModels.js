@@ -3,6 +3,7 @@ require("dotenv").config({ path: "../curbmap.env" });
 const uri = `postgres://${process.env.USERDB_USERNAME}:${
   process.env.USERDB_PASSWORD
 }@${process.env.POSTGRES_HOST}/${process.env.POSTGRES_DB}`;
+console.log(uri)
 const sequelize = new Sequelize(uri);
 const User = sequelize.define(
   "standard_user",

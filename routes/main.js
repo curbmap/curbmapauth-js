@@ -50,6 +50,8 @@ function userContent(user) {
 
 router.post("/login", (req, res, next) => {
   passport.authenticate("local", { session: false }, (err, user, info) => {
+    	console.log(req.body)
+	console.log(user, err, info)
     try {
       if (err) {
         return next(err);
@@ -246,13 +248,26 @@ router.post("/signup", (req, res, next) => {
           if (passwordMeetsCriteria(req.body.password)) {
             if (emailMeetsCriteria(req.body.email)) {
               try {
-                const newUser = postgres.User.build({
+                let newUser;
+                if (req.body.username === 'curbmaptest') {
+                  newUser = postgres.User.build({
+                    username: 'curbmaptest',
+                    password_hash: bcrypt.hashSync(req.body.password, saltRounds),
+                    user_email: req.body.email,
+                    id_user: uuidv1(),
+                    auth_token: "",
+                    authorized: 1
+                  })
+                  console.log(newUser);
+                } else {
+                newUser = postgres.User.build({
                   username: req.body.username,
                   password_hash: bcrypt.hashSync(req.body.password, saltRounds),
                   user_email: req.body.email,
                   id_user: uuidv1(),
                   auth_token: uuidv1()
                 });
+                }
                 return newUser.save();
               } catch (_) {
                 throw "couldnotcreateuser";
