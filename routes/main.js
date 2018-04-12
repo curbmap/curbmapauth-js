@@ -1,3 +1,4 @@
+const fs = require("fs");
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
@@ -9,8 +10,6 @@ const jwt = require("jsonwebtoken");
 const saltRounds = 12;
 const uuidv1 = require("uuid/v1");
 const winston = require("winston");
-const ensureLoggedIn = require("connect-ensure-login").ensureLoggedIn;
-const fs = require("fs");
 const passwordSpecial = /[!@#$%^&*)(<>+=._]+/g;
 const passwordCapital = /[A-Z]+/g;
 const passwordLower = /[a-z]+/g;
@@ -67,15 +66,19 @@ router.post("/login", (req, res, next) => {
         res.status(200).json(userContent(user));
       });
     } catch (error) {
-      winston.log("error", error)
+      winston.log("error", error);
     }
   })(req, res, next);
 });
 
-router.post("/logout", passport.authenticate("jwt", { session: false }), (req, res) => {
-  req.logout();
-  res.status(200).json({ success: true });
-});
+router.post(
+  "/logout",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    req.logout();
+    res.status(200).json({ success: true });
+  }
+);
 
 router.get("/resendauth", (req, res, next) => {
   if (req.query.hasOwnProperty("username") && req.query.username !== "") {
@@ -201,6 +204,24 @@ router.post("/changepassword", (req, res, next) => {
   });
 });
 
+router.post("/submitContact", async (req, res, next) => {
+  winston.log("error", req.body)
+  if (
+    req.body.email &&
+    req.body.name &&
+    req.body.text &&
+    (req.body.email !== "" && req.body.name !== "" && req.body.text !== "")
+  ) {
+    fs.writeFileSync(
+      "./contacts/" + new Date().getTime() + ".contact.json",
+      JSON.stringify(req.body)
+    );
+    return res.status(200).json({ success: true });
+  } else {
+    return res.status(200).json({ success: false });
+  }
+});
+
 router.post("/signup", (req, res, next) => {
   if (
     req.body.username !== "" &&
@@ -293,7 +314,7 @@ router.post("/signup", (req, res, next) => {
   next();
 });
 
-router.get("/home", (req, res, next) => {
+router.get("/", (req, res, next) => {
   res.render("index");
   next();
 });
@@ -303,10 +324,6 @@ router.get("/privacy", (req, res, next) => {
   res.render("privacy");
 });
 
-router.get("/", (req, res, next) => {
-  res.render("index");
-  next();
-});
 router.get("/login", (req, res, next) => {
   res.render("index");
   next();
@@ -315,14 +332,14 @@ router.get("/signup", (req, res, next) => {
   res.render("index");
   next();
 });
-router.get("/add", (req, res, next) => {
-  res.render("add");
-  next();
-});
 
-router.get("/user", passport.authenticate("jwt", { session: false }), (req, res, next) => {
-  return res.status(200).json(userContent(req.user));
-});
+router.get(
+  "/user",
+  passport.authenticate("jwt", { session: false }),
+  (req, res, next) => {
+    return res.status(200).json(userContent(req.user));
+  }
+);
 
 function sendAuth(username, email, authToken) {
   var params = {
