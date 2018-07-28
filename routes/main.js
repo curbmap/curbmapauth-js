@@ -43,7 +43,7 @@ function userContent(user) {
         TOKEN_KEY,
         { algorithm: "RS384", expiresIn: "1d" }
       ),
-      email: userObject.user_email
+      email: userObject.email
     };
   }
   return {};
