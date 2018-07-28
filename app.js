@@ -154,7 +154,7 @@ function findUser(username, cb) {
       ]
     })
     .then(foundUser => {
-      if (foundUser !== null && !foundUser.auth_token) {
+      if (foundUser != null && !foundUser.auth_token) {
         throw new SuccessUsernameError("success", 1, foundUser, cb);
       } else if (foundUser !== null) {
         throw new FailedAuthorizedError("failed", -1, foundUser, cb);

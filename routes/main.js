@@ -51,6 +51,8 @@ function userContent(user) {
 
 router.post("/login", (req, res, next) => {
   passport.authenticate("local", { session: false }, (err, user, info) => {
+    	console.log(req.body)
+    console.log(user, err, info)
     try {
       if (err) {
         return next(err);
