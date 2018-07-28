@@ -1,5 +1,5 @@
 const express = require("express");
-require("dotenv").config({ path: "../curbmap.env" });
+require("dotenv").config({ path: "../config/curbmap.env" });
 const path = require("path");
 const favicon = require("serve-favicon");
 const logger = require("morgan");
@@ -11,10 +11,11 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcrypt");
 const postgres = require("./model/postgresModels");
+const db = require("./models");
 const passportJWT = require("passport-jwt");
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
-const EXTRACT_KEY = fs.readFileSync("../curbmap.pub");
+const EXTRACT_KEY = fs.readFileSync("../config/curbmap.pub");
 
 const app = express();
 
@@ -94,39 +95,96 @@ class FailedAuthorizedError {
 
 function deserializeUser(username, cb) {
   // always going to look with username and must exist from session
-  postgres.User.findOne({
-    where: {
-      username
-    }
-  }).then(foundUser => {
-    if (foundUser != null) {
-      return cb(null, foundUser);
-    } else {
-      return cb(null, false);
-    }
-  });
+  db.curbmap_users
+    .findOne({
+      where: {
+        username
+      },
+      attributes: [
+        "id",
+        "username",
+        "active_account",
+        "authorized",
+        "external_auth_key",
+        "external_auth_service",
+        "role",
+        "external_auth_id",
+        "auth_token",
+        "password",
+        "email",
+        "score",
+        "badge",
+        "badge_updated",
+        "createdAt",
+        "updatedAt"
+      ]
+    })
+    .then(foundUser => {
+      if (foundUser != null) {
+        return cb(null, foundUser);
+      } else {
+        return cb(null, false);
+      }
+    });
 }
 
 function findUser(username, cb) {
-  postgres.User.findOne({
-    where: {
-      username
-    }
-  })
+  db.curbmap_users
+    .findOne({
+      where: {
+        username
+      },
+      attributes: [
+        "id",
+        "username",
+        "active_account",
+        "authorized",
+        "external_auth_key",
+        "external_auth_service",
+        "role",
+        "external_auth_id",
+        "auth_token",
+        "password",
+        "email",
+        "score",
+        "badge",
+        "badge_updated",
+        "createdAt",
+        "updatedAt"
+      ]
+    })
     .then(foundUser => {
-      if (foundUser !== null && foundUser.auth_token.length == 0) {
+      if (foundUser !== null && !foundUser.auth_token) {
         throw new SuccessUsernameError("success", 1, foundUser, cb);
       } else if (foundUser !== null) {
         throw new FailedAuthorizedError("failed", -1, foundUser, cb);
       }
-      return postgres.User.findOne({
+      return db.curbmap_users.findOne({
         where: {
-          user_email: username
-        }
+          email: username
+        },
+        attributes: [
+          "id",
+          "username",
+          "active_account",
+          "authorized",
+          "external_auth_key",
+          "external_auth_service",
+          "role",
+          "external_auth_id",
+          "auth_token",
+          "password",
+          "email",
+          "score",
+          "badge",
+          "badge_updated",
+          "createdAt",
+          "updatedAt"
+        ]
       });
     })
     .then(foundUser => {
-      if (foundUser != null && foundUser.auth_token.length == 0) {
+      if (foundUser != null && !foundUser.auth_token) {
         throw new SuccessEmailError("success", 1, foundUser, cb);
       } else if (foundUser != null) {
         throw new FailedAuthorizedError("failed", -1, foundUser, cb);
@@ -151,7 +209,7 @@ passport.use(
   new LocalStrategy((username, password, done) => {
     findUser(username, (code, userObject) => {
       if (userObject !== false) {
-        bcrypt.compare(password, userObject.password_hash, (err, res) => {
+        bcrypt.compare(password, userObject.password, (err, res) => {
           if (err) {
             return done(err);
           } else if (res === true) {
@@ -180,7 +238,7 @@ passport.use(
 );
 
 app.use(express.static(path.join(__dirname, "public")));
-const main = require("./routes/main")
+const main = require("./routes/main");
 app.use("/", main);
 
 // catch 404 and forward to error handler

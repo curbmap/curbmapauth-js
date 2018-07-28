@@ -3,9 +3,10 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 const postgres = require("../model/postgresModels");
+const db = require("../models");
 const bcrypt = require("bcrypt");
 const AWS = require("aws-sdk");
-AWS.config.loadFromPath("../ses.json");
+AWS.config.loadFromPath("../config/ses.json");
 const jwt = require("jsonwebtoken");
 const saltRounds = 12;
 const uuidv1 = require("uuid/v1");
@@ -20,29 +21,29 @@ let transporter = new AWS.SES({
   apiVersion: "2010-12-01"
 });
 
-const TOKEN_KEY = fs.readFileSync("../curbmap.key");
+const TOKEN_KEY = fs.readFileSync("../config/curbmap.key");
 
 function userContent(user) {
   if (user.username) {
+    const userObject = JSON.parse(JSON.stringify(user));
     return {
       success: 1,
-      username: user.username,
-      role: user.role,
-      badge: user.badge,
-      badge_updatedAt: user.badge_updatedAt,
-      score: user.score,
-      score_updatedAt: user.score_updatedAt,
+      username: userObject.username,
+      role: userObject.role,
+      badge: userObject.badge,
+      score: userObject.score,
+      id: userObject.id,
       token: jwt.sign(
         {
-          username: user.username,
-          id: user.id_user,
-          active: user.active_account,
-          role: user.role
+          username: userObject.username,
+          id: userObject.id,
+          active: userObject.active_account,
+          role: userObject.role
         },
         TOKEN_KEY,
         { algorithm: "RS384", expiresIn: "1d" }
       ),
-      email: user.user_email
+      email: userObject.user_email
     };
   }
   return {};
@@ -80,7 +81,7 @@ router.post(
 
 router.get("/resendauth", (req, res, next) => {
   if (req.query.hasOwnProperty("username") && req.query.username !== "") {
-    postgres.User.findOne({
+    db.curbmap_users.findOne({
       where: {
         username: req.query.username
       }
@@ -203,7 +204,7 @@ router.post("/changepassword", (req, res, next) => {
 });
 
 router.post("/submitContact", async (req, res, next) => {
-  winston.log("error", req.body)
+  winston.log("error", req.body);
   if (
     req.body.email &&
     req.body.name &&
@@ -220,40 +221,41 @@ router.post("/submitContact", async (req, res, next) => {
   }
 });
 
-router.post("/signup", (req, res, next) => {
+router.post("/signup", async (req, res, next) => {
   if (
     req.body.username !== "" &&
     req.body.password !== "" &&
     req.body.email !== ""
   ) {
-    postgres.User.findOne({
-      where: {
-        username: req.body.username
-      }
-    })
+    db.curbmap_users
+      .findOne({
+        where: {
+          username: req.body.username
+        }
+      })
       .then(foundUser => {
         if (foundUser === null || foundUser === undefined) {
-          return postgres.User.findOne({
+          return db.curbmap_users.findOne({
             where: {
-              user_email: req.body.email
+              email: req.body.email
             }
           });
         }
         throw "usernamefound";
       })
-      .then(foundEmail => {
+      .then(async foundEmail => {
         if (foundEmail === null || foundEmail === undefined) {
           if (passwordMeetsCriteria(req.body.password)) {
             if (emailMeetsCriteria(req.body.email)) {
               try {
-                const newUser = postgres.User.build({
+                const newUser = await db.curbmap_users.build({
                   username: req.body.username,
-                  password_hash: bcrypt.hashSync(req.body.password, saltRounds),
-                  user_email: req.body.email,
-                  id_user: uuidv1(),
+                  password: bcrypt.hashSync(req.body.password, saltRounds),
+                  email: req.body.email,
                   auth_token: uuidv1()
                 });
-                return newUser.save();
+                await newUser.save();
+                return newUser;
               } catch (_) {
                 throw "couldnotcreateuser";
               }
