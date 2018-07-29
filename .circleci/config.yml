@@ -1,33 +1,40 @@
 version: 2
-machine:
-  environment:
-    PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin"
-
-dependencies:
-  override:
-    - yarn
-  cache_directories:
-    - ~/.cache/yarn
-
-test:
-  override:
-    - yarn test
-    
 jobs:
   build:
+    working_directory: ~/curbmapauth-js
     docker:
       - image: circleci/node:latest
-    working_directory: ~/curbmapauth-js
-    branches:
-      only:
-        - master
     steps:
       - checkout
-      - run: yarn install
-      - run: tar -c -v --exclude node_modules -f curbmapauth-js.tar *
-      - run: bzip2 curbmapauth-js.tar
+      - restore_cache:
+          key: v1-{{ .Branch }}-{{ checksum "package.json" }}
+      - run:
+          name: NPM install
+          command: |
+            npm install
+      - save_cache:
+          key: v1-{{ .Branch }}-{{ checksum "package.json" }}
+          paths:
+            - "node_modules"
+  deploy:
+    machine: 
+      enabled: true
+    steps:
+      - add_ssh_keys:
+            fingerprints:
+              - "95:95:c9:8c:b8:31:11:dd:06:11:3d:16:9c:fd:0b:96	"
+      - run:
+            name: Deploy over SSH
+            command: |
+                ssh -f $SSH_USER@$SSH_HOST "cd ~/deploy && ./runscript.sh build"
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
       - deploy:
-          name: The Jester
-          command:  |
-            scp -o StrictHostKeyChecking=no curbmapauth-js.tar.bz2 ec2-user@curbmap.com:~/deploy/curbmapauth-js/
-            ssh -o StrictHostKeyChecking=no ec2-user@curbmap.com "cd ~/deploy && ./runscript.sh build > /dev/null &"
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
